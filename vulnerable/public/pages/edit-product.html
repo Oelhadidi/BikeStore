@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product</title>
+    <link rel="stylesheet" href="/styles/pages/edit-product.css"> <!-- Your CSS file -->
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Product</h1>
+        <form id="edit-product-form" class="form">
+            <div class="form-group">
+                <label for="name">Product Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="5" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="price">Price:</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="imageUrl">Image URL:</label>
+                <input type="text" id="imageUrl" name="imageUrl">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='/pages/products'">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Extract product ID from the URL
+        const productId = window.location.pathname.split('/').pop();
+    
+        // Fetch product details and populate the form
+        window.onload = async () => {
+            try {
+                const response = await fetch(`/products/${productId}`); // Fetch product details from the backend
+                if (!response.ok) {
+                    throw new Error('Failed to fetch product details');
+                }
+                const product = await response.json();
+    
+                // Populate form fields with product data
+                document.getElementById('name').value = product.name;
+                document.getElementById('description').value = product.description;
+                document.getElementById('price').value = product.price;
+                document.getElementById('imageUrl').value = product.imageUrl || '';
+            } catch (error) {
+                console.error('Error fetching product details:', error);
+                alert('Failed to load product details. Please try again.');
+            }
+        };
+    
+        // Handle form submission to update the product
+        document.getElementById('edit-product-form').onsubmit = async (event) => {
+            event.preventDefault();
+            try {
+                const updatedProduct = {
+                    name: document.getElementById('name').value,
+                    description: document.getElementById('description').value,
+                    price: parseFloat(document.getElementById('price').value),
+                    imageUrl: document.getElementById('imageUrl').value,
+                };
+    
+                const response = await fetch(`/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedProduct),
+                });
+    
+                if (response.ok) {
+                    alert('Product updated successfully');
+                    window.location.href = '/pages/products'; // Redirect back to the shop page
+                } else {
+                    const result = await response.json();
+                    alert(result.message || 'Error updating product');
+                }
+            } catch (error) {
+                console.error('Error updating product:', error);
+            }
+        };
+    </script>
+</body>
+</html>
