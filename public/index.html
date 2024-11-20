@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bike Store</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <a href="/" class="logo">BikeStore</a>
+    <nav id="nav-links">
+        <a href="/pages/products">Shop</a>
+        <a href="/pages/login" id="login-link">Login</a>
+        <a href="/pages/register" id="register-link">Register</a>
+    </nav>
+    <div id="user-menu" style="display: none;">
+      <a href="/profile">
+          <img src="/images/profile-icon.png" alt="Profile" class="profile-icon">
+      </a>
+      <button id="logout-btn" class="logout-btn">Logout</button>
+    </div>
+  </header>
+  
+
+  <!-- Main Content -->
+  <main>
+    <section class="hero">
+        <h1>Find Your Perfect Ride</h1>
+        <p>Discover the latest bikes at unbeatable prices.</p>
+        <button class="shop-now-btn">Shop Now</button>
+    </section>
+    <h2 class="featured-products">Featured Products</h2>
+    <section id="products-list" class="cards-container">
+      <button id="see-more-btn" class="see-more-btn">See More Products</button>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="logo">
+      <a href="/">BikeStore</a>
+    </div>
+    <nav>
+      <a href="/shop">Shop</a>
+      <a href="/about">About Us</a>
+      <a href="/contact">Contact</a>
+      <a href="/terms">Terms & Conditions</a>
+      <a href="/privacy">Privacy Policy</a>
+    </nav>
+    <div class="social-icons">
+      <a href="#" class="facebook-icon">F</a>
+      <a href="#" class="twitter-icon">T</a>
+      <a href="#" class="instagram-icon">I</a>
+    </div>
+  </footer>
+
+  <!-- Load Scripts -->
+  <script src="/scripts/scripts.js"></script>
+  <script defer src="/scripts/header.js"></script>
+</body>
+</html>
