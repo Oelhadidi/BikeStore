@@ -16,18 +16,23 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Use a raw SQL query (vulnerable)
-        const [user] = await sequelize.query(
+        // Intentionally use a raw SQL query to allow SQL injection
+        const [users] = await sequelize.query(
             `SELECT * FROM Users WHERE email = '${email}' AND password = '${password}'`
         );
-        console.log(`Executed Query: SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`);
-        if (!user) {
+
+        // If no user is found
+        if (!users || users.length === 0) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email }, secret_key, { expiresIn: '1h' });
-        const { id, username, email: userEmail, role: role } = user;
+        // For simplicity, take the first matched user
+        const user = users[0];
 
+        // Generate a mock JWT token (if needed for testing)
+        const token = jwt.sign({ id: user.id, email: user.email }, secret_key, { expiresIn: '1h' });
+
+        const { id, username, email: userEmail, role: role } = user;
         res.status(200).json({ message: 'Login successful', token, user: { id, username, email: userEmail, role: role } });
     } catch (error) {
         console.error('Login Error:', error);

