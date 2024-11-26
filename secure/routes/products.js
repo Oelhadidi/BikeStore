@@ -9,16 +9,6 @@ router.get("/", async (req, res) => {
     res.json(products);
 });
 
-// Get all products (non secure)
-router.get("/insecure-products", async (req, res) => {
-    const keyword = req.query.keyword;
-    const query = `SELECT * FROM Products WHERE name LIKE '%${keyword}%'`;
-    sequelize.query(query).then(([results, metadata]) => {
-        res.json(results);
-    }).catch(err => {
-        res.status(500).send("Error");
-    });
-});
 
 router.post('/', async (req, res) => {
     const { name, description, price, imageUrl } = req.body;
