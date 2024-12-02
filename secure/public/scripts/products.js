@@ -59,12 +59,12 @@ window.onload = async () => {
 
         // Show the "See More Products" button
         const seeMoreBtn = document.getElementById('see-more-btn');
-        seeMoreBtn.style.display = 'block';
+        // seeMoreBtn.style.display = 'block';
 
         // Navigate to the products page when the "See More" button is clicked
-        seeMoreBtn.onclick = () => {
-            window.location.href = '/products';
-        };
+        // seeMoreBtn.onclick = () => {
+        //     window.location.href = '/products';
+        // };
     } catch (error) {
         console.error('Error fetching products:', error);
     }
@@ -73,10 +73,15 @@ window.onload = async () => {
 // Function to delete a product
 async function deleteProduct(productId) {
     try {
+        const csrfToken = await fetch('/csrf-token')
+        .then(res => res.json())
+        .then(data => data.csrfToken);
+        
         const response = await fetch(`/products/${productId}`, {
             method: 'DELETE', // Assuming you are using DELETE method to remove a product
             headers: {
                 'Content-Type': 'application/json',
+                'CSRF-Token': csrfToken,
             },
         });
         const result = await response.json();

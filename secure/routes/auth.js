@@ -2,14 +2,14 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const csurf = require("csurf");
 const router = express.Router();
 require('dotenv').config();
 
+const csrfProtection = csurf({ cookie: true }); // CSRF middleware using cookies
 const secret_key = process.env.SECRET_KEY;
 
-
-
-// Handle login POST
+// Handle login POST (CSRF not required for login as it doesn't change state)
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -21,7 +21,7 @@ router.post('/login', async (req, res) => {
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Invalid credentials :p' });
         }
 
         // Generate token
@@ -35,11 +35,9 @@ router.post('/login', async (req, res) => {
     }
 });
 
-
-// Handle Register POST
-router.post('/register', async (req, res) => {
+// Handle Register POST (CSRF protection added)
+router.post('/register', csrfProtection, async (req, res) => {
     const { username, email, password } = req.body;
-
     if (!username || !email || !password) {
         return res.status(400).json({ message: 'All fields are required' });
     }
@@ -49,19 +47,17 @@ router.post('/register', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: 'Email already in use' });
         }
-        const newUser = await User.create({ username, email, password });
+        const hashedPassword = await bcrypt.hash(password, 10);// Hash the password before saving
+        
+        const newUser = await User.create({ username, email, password: hashedPassword });
         res.status(201).json({ message: 'User created successfully', user: newUser });
     } catch (error) {
         res.status(500).json({ message: 'Error registering user', error });
     }
 });
 
-// Logout
-router.post("/logout", (req, res) => {
-    res.clearCookie("token").send("Logged out");
-});
 
-// Edit User Profile
+// Edit User Profile (without CSRF protection to be able to use on Postman)
 router.put('/user/:id/role', async (req, res) => {
     const { id } = req.params;  // Get user ID from URL
     const { role } = req.body;  // Get role from the request body
