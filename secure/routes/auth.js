@@ -3,35 +3,60 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const router = express.Router();
+const axios = require("axios");
 require('dotenv').config();
+const { Sequelize } = require('sequelize');
+const sequelize = require('../utils/database');
 
 const secret_key = process.env.SECRET_KEY;
+const recaptcha_secret_key = process.env.RECAPTCHA_SECRET_KEY;
 
 
 
 // Handle login POST
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, recaptchaToken } = req.body;
 
     try {
-        const user = await User.findOne({ where: { email } });
-        if (!user) {
+        // Étape 1 : Valider le token reCAPTCHA
+        const recaptchaResponse = await axios.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            null,
+            {
+                params: {
+                    secret: recaptcha_secret_key, // Clé privée reCAPTCHA
+                    response: recaptchaToken,    // Token fourni par le frontend
+                },
+            }
+        );
+        console.log('reCAPTCHA Response:', recaptchaResponse.data);
+        console.log("recaptchaToken : ", recaptchaToken);
+
+
+        // Vérifier si le reCAPTCHA est valide
+        if (!recaptchaResponse.data.success || recaptchaResponse.data.score < 0.5) {
+            return res.status(400).json({ message: 'reCAPTCHA validation failed. Suspicious activity detected.' });
+        }
+
+        // Étape 2 : Vérifier les identifiants dans la base de données
+        const [users] = await sequelize.query(
+            `SELECT * FROM Users WHERE email = '${email}' AND password = '${password}'`
+        );
+
+        // Si aucun utilisateur n'est trouvé
+        if (!users || users.length === 0) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        // Generate token
+        // Étape 3 : Générer un JWT si la connexion réussit
+        const user = users[0];
         const token = jwt.sign({ id: user.id, email: user.email }, secret_key, { expiresIn: '1h' });
-        const { id, username, email: userEmail, role: role } = user;
 
-        // Send token and user data
-        res.status(200).json({ message: 'Login successful', token, user: { id, username, email: userEmail , role: role } });
+        const { id, username, email: userEmail, role: role } = user;
+        res.status(200).json({ message: 'Login successful', token, user: { id, username, email: userEmail, role: role } });
     } catch (error) {
-        res.status(500).json({ message: 'Error logging in', error });
+        console.error('Login Error:', error);
+        res.status(500).json({ message: 'Error logging in', error: error.message });
     }
 });
 
