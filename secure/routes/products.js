@@ -1,7 +1,24 @@
 const express = require("express");
 const Product = require("../models/product");
+const path = require('path');
+const axios = require("axios");
+const fs = require('fs');
+const Joi = require("joi");
+const validator = require('validator');
+const isBase64 = require('is-base64');
+
+
+
 // const auth = require("../middleware/auth");
 const router = express.Router();
+
+const productSchema = Joi.object({
+    name: Joi.string().required(),
+    description: Joi.string().required(),
+    price: Joi.number().positive().required(),
+    imageUrl: Joi.string().uri().required(), // Valider que c'est une URL valide
+});
+
 
 // Get all products
 router.get("/", async (req, res) => {
@@ -11,23 +28,33 @@ router.get("/", async (req, res) => {
 
 
 router.post('/', async (req, res) => {
+    // const { name, description, price, imageUrl } = req.body;
     const { name, description, price, imageUrl } = req.body;
 
+    // Validation des données utilisateur
+    const { error } = productSchema.validate(req.body);
+    if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+    }
     try {
+
+        // Enregistrez le produit dans la base de données avec l'URL ou la chaîne Base64 directement
         const newProduct = await Product.create({
             name,
             description,
             price,
-            imageUrl
+            imageUrl,
         });
+
         res.status(201).json(newProduct);
     } catch (error) {
-        res.status(500).json({ error: 'Error adding product' });
+        console.error("Error processing product:", error);
+        res.status(500).json({ error: "Error adding product" });
     }
 });
 
 // Admin: Edit a product
-router.put('/products/:id',  async (req, res) => {
+router.put('/products/:id', async (req, res) => {
     // if (req.user.role !== 'admin') {
     //     return res.status(403).json({ message: 'You do not have permission to edit products' });
     // }

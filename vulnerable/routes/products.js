@@ -2,6 +2,8 @@ const express = require("express");
 const Product = require("../models/product");
 // const auth = require("../middleware/auth");
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
 
 // Get all products 
 router.get("/", async (req, res) => {
@@ -24,20 +26,34 @@ router.post('/', async (req, res) => {
     const { name, description, price, imageUrl } = req.body;
 
     try {
+        // Construire le chemin du fichier à partir de l'image URL
+        const filePath = path.join(__dirname, imageUrl);
+
+        // Lire le contenu du fichier
+        let fileContent = fs.readFileSync(filePath, 'utf8');
+
+        // Réduire la taille du contenu à 100 caractères pour éviter l'erreur SQL
+        if (fileContent.length > 100) {
+            fileContent = fileContent.substring(0, 100);
+        }
+
+        // Créer le produit avec le contenu tronqué comme "imageUrl"
         const newProduct = await Product.create({
             name,
             description,
             price,
-            imageUrl
+            imageUrl: fileContent, // Stocke le contenu réduit
         });
+
         res.status(201).json(newProduct);
     } catch (error) {
+        console.error('Error processing product:', error);
         res.status(500).json({ error: 'Error adding product' });
     }
 });
 
 // Admin: Edit a product
-router.put('/products/:id',  async (req, res) => {
+router.put('/products/:id', async (req, res) => {
     // if (req.user.role !== 'admin') {
     //     return res.status(403).json({ message: 'You do not have permission to edit products' });
     // }

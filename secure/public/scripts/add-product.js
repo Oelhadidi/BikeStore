@@ -2,10 +2,17 @@ document.getElementById('add-product-form').addEventListener('submit', async (ev
     event.preventDefault(); // Prevent form submission from reloading the page
 
     // Collect form data
-    const name = document.getElementById('product-name').value.trim();
-    const description = document.getElementById('product-description').value.trim();
-    const price = parseFloat(document.getElementById('product-price').value);
-    const imageUrl = document.getElementById('product-image').value.trim();
+    const name = document.getElementById('product-name')?.value.trim();
+    const description = document.getElementById('product-description')?.value.trim();
+    const priceInput = document.getElementById('product-price')?.value;
+    const price = parseFloat(priceInput);
+    const imageUrl = document.getElementById('product-image')?.value.trim();
+
+    // Validate the collected data
+    if (!name || !description || isNaN(price) || !imageUrl) {
+        alert('All fields are required, and price must be a valid number.');
+        return;
+    }
 
     try {
         // Make a POST request to the server

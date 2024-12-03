@@ -42,6 +42,7 @@ router.post('/login', async (req, res) => {
         const [users] = await sequelize.query(
             `SELECT * FROM Users WHERE email = '${email}' AND password = '${password}'`
         );
+        console.log("Users : ", users);
 
         // Si aucun utilisateur n'est trouvé
         if (!users || users.length === 0) {

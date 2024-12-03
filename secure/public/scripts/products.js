@@ -8,7 +8,7 @@ window.onload = async () => {
         productsList.innerHTML = ''; // Clear the products list
 
         // Get the logged-in user from localStorage
-        const user = JSON.parse(localStorage.getItem('authUser')); 
+        const user = JSON.parse(localStorage.getItem('authUser'));
         const isAdmin = user && user.role === 'admin'; // Check if the user is an admin
 
         // Show "Add Bike" button if the user is an admin
@@ -26,8 +26,14 @@ window.onload = async () => {
             const productCard = document.createElement('div');
             productCard.classList.add('product-card');
 
+            // Validate imageUrl
+            let imageUrl = product.imageUrl || 'default-image.jpg';
+            if (!/^data:image\/(png|jpeg|jpg|gif);base64,/.test(imageUrl) && !/^https?:\/\//.test(imageUrl)) {
+                imageUrl = 'default-image.jpg'; // Fallback to default image
+            }
+
             productCard.innerHTML = `
-                <img src="${product.imageUrl || 'default-image.jpg'}" alt="${product.name}">
+                <img src="${imageUrl}" alt="${product.name}">
                 <h3>${product.name}</h3>
                 <p>${product.description}</p>
                 <div class="price">$${product.price}</div>

@@ -17,9 +17,12 @@
     "ejs": "^3.1.10",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
+    "is-base64": "^1.1.0",
+    "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.4",
     "new_app": "file:",
-    "sequelize": "^6.37.5"
+    "sequelize": "^6.37.5",
+    "validator": "^13.12.0"
   }
 }
