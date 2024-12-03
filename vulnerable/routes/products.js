@@ -26,23 +26,14 @@ router.post('/', async (req, res) => {
     const { name, description, price, imageUrl } = req.body;
 
     try {
-        // Construire le chemin du fichier à partir de l'image URL
-        const filePath = path.join(__dirname, imageUrl);
 
-        // Lire le contenu du fichier
-        let fileContent = fs.readFileSync(filePath, 'utf8');
-
-        // Réduire la taille du contenu à 100 caractères pour éviter l'erreur SQL
-        if (fileContent.length > 100) {
-            fileContent = fileContent.substring(0, 100);
-        }
 
         // Créer le produit avec le contenu tronqué comme "imageUrl"
         const newProduct = await Product.create({
             name,
             description,
             price,
-            imageUrl: fileContent, // Stocke le contenu réduit
+            imageUrl,
         });
 
         res.status(201).json(newProduct);

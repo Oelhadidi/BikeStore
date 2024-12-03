@@ -20,11 +20,21 @@ const productSchema = Joi.object({
 });
 
 
+
 // Get all products
 router.get("/", async (req, res) => {
     const products = await Product.findAll();
     res.json(products);
 });
+
+const escapeHtml = (unsafe) => {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+};
 
 
 router.post('/', async (req, res) => {
@@ -37,15 +47,14 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: error.details[0].message });
     }
     try {
-
-        // Enregistrez le produit dans la base de données avec l'URL ou la chaîne Base64 directement
-        const newProduct = await Product.create({
-            name,
-            description,
+        const sanitizedData = {
+            name: escapeHtml(name),
+            description: escapeHtml(description),
             price,
-            imageUrl,
-        });
+            imageUrl, // Optionally validate the URL with a library
+        };
 
+        const newProduct = await Product.create(sanitizedData);
         res.status(201).json(newProduct);
     } catch (error) {
         console.error("Error processing product:", error);
