@@ -2,6 +2,7 @@ const express = require("express");
 const Product = require("../models/product");
 // const auth = require("../middleware/auth");
 const router = express.Router();
+const sequelize = require("../utils/database");
 
 // Get all products 
 router.get("/", async (req, res) => {
@@ -10,9 +11,10 @@ router.get("/", async (req, res) => {
 });
 
 // Get all products (non secure)
-router.get("/insecure-products", async (req, res) => {
+router.get("/search", async (req, res) => {
     const keyword = req.query.keyword;
     const query = `SELECT * FROM Products WHERE name LIKE '%${keyword}%'`;
+    console.log(query);
     sequelize.query(query).then(([results, metadata]) => {
         res.json(results);
     }).catch(err => {

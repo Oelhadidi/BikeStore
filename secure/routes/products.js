@@ -1,6 +1,7 @@
 const express = require("express");
 const Product = require("../models/product");
 const router = express.Router();
+const sequelize = require('../utils/database');
 
 // Middleware pour vérifier le token CSRF
 const csrfProtection = require("csurf")({ cookie: true });
@@ -10,6 +11,25 @@ router.get("/", async (req, res) => {
     const products = await Product.findAll();
     res.json(products);
 });
+
+//Get search field name and description
+router.get("/search", async (req, res) => {
+    try {
+        const keyword = req.query.keyword || "";
+        const results = await sequelize.query(
+            `SELECT * FROM Products WHERE name LIKE :keyword OR description LIKE :keyword`,
+            {
+                replacements: { keyword: `%${keyword}%` },
+                type: sequelize.QueryTypes.SELECT,
+            }
+        );
+        res.json(results);
+    } catch (err) {
+        console.error('Error searching products:', err); // Enhanced logging
+        res.status(500).send("An error occurred while fetching products.");
+    }
+});
+
 
 // Get product by ID (aucune modification des données, pas besoin de CSRF ici)
 router.get('/:id', async (req, res) => {
