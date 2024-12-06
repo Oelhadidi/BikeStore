@@ -27,7 +27,6 @@ const csrfRoutes = require('./routes/csrf');
 
 // Ajouter le middleware CSRF globalement ou pour des routes spécifiques
 app.use("/auth/register", csrfProtection);
-app.use("/auth/user/:id/role", csrfProtection);
 app.use("/products/", csrfProtection);
 
 // Middleware pour injecter le token CSRF dans les réponses
