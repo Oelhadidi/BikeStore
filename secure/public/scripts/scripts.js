@@ -1,12 +1,14 @@
 window.onload = async () => {
-    
     try {
         const response = await fetch('/products'); // Assuming this is the endpoint
         const products = await response.json();
         const productsList = document.getElementById('products-list');
         productsList.innerHTML = ''; // Clear the products list
 
-        products.forEach(product => {
+        // Display only the first 4 products
+        const limitedProducts = products.slice(0, 4);
+
+        limitedProducts.forEach(product => {
             const productCard = document.createElement('div');
             productCard.classList.add('product-card');
 
@@ -26,20 +28,17 @@ window.onload = async () => {
 
         // Add a click event to the button to navigate to the products page
         seeMoreBtn.onclick = () => {
-            window.location.href = '/products'; // This navigates to your products page
+            window.location.href = '/pages/products'; // This navigates to your products page
         };
     } catch (error) {
         console.error('Error fetching products:', error);
     }
-
-    
 };
 
 window.addEventListener('DOMContentLoaded', () => {
     const shopNowBtn = document.getElementById('shop-now-btn');
 
     shopNowBtn?.addEventListener('click', () => {
-    
         window.location.href = '/pages/products';
     });
 });

@@ -71,11 +71,15 @@
                     price: parseFloat(document.getElementById('price').value),
                     imageUrl: document.getElementById('imageUrl').value,
                 };
+                const csrfToken = await fetch('/csrf-token')
+                .then(res => res.json())
+                .then(data => data.csrfToken);
     
                 const response = await fetch(`/products/${productId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        'CSRF-Token': csrfToken,
                     },
                     body: JSON.stringify(updatedProduct),
                 });
